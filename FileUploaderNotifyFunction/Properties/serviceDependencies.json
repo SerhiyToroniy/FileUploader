@@ -1,0 +1,29 @@
+{
+  "dependencies": {
+    "appInsights1": {
+      "type": "appInsights"
+    },
+    "storage1": {
+      "type": "storage",
+      "connectionId": "AzureWebJobsStorage"
+    },
+    "secrets1": {
+      "type": "secrets"
+    },
+    "storage2": {
+      "type": "storage",
+      "connectionId": "NotifyFileUploader",
+      "dynamicId": null
+    },
+    "storage3": {
+      "type": "storage",
+      "connectionId": "notify",
+      "dynamicId": null
+    },
+    "storage4": {
+      "type": "storage",
+      "connectionId": "notify_uploaded",
+      "dynamicId": null
+    }
+  }
+}

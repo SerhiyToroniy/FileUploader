@@ -1,0 +1,35 @@
+{
+  "dependencies": {
+    "appInsights1": {
+      "type": "appInsights.sdk"
+    },
+    "storage1": {
+      "type": "storage.emulator",
+      "connectionId": "AzureWebJobsStorage"
+    },
+    "secrets1": {
+      "type": "secrets.user"
+    },
+    "storage2": {
+      "secretStore": "LocalSecretsFile",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/serhiytoroniywebapp",
+      "type": "storage.azure",
+      "connectionId": "NotifyFileUploader",
+      "dynamicId": null
+    },
+    "storage3": {
+      "secretStore": "LocalSecretsFile",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/serhiytoroniywebapp",
+      "type": "storage.azure",
+      "connectionId": "notify",
+      "dynamicId": null
+    },
+    "storage4": {
+      "secretStore": "LocalSecretsFile",
+      "resourceId": "/subscriptions/[parameters('subscriptionId')]/resourceGroups/[parameters('resourceGroupName')]/providers/Microsoft.Storage/storageAccounts/serhiytoroniywebapp",
+      "type": "storage.azure",
+      "connectionId": "notify_uploaded",
+      "dynamicId": null
+    }
+  }
+}

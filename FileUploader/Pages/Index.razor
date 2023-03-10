@@ -1,9 +1,99 @@
 ﻿@page "/"
+@using Azure.Storage.Blobs;
+@using Azure.Storage.Blobs.Models;
+@using Azure.Storage.Queues;
+@using MailKit.Net.Smtp;
+@using MimeKit;
 
-<PageTitle>Index</PageTitle>
+<h1>Upload a .docx file</h1>
 
-<h1>Hello, world!</h1>
+@if (!string.IsNullOrEmpty(ErrorMessage))
+{
+    <p>@ErrorMessage</p>
+}
+<head>
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
+<form>
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" @bind="Email" required />
+    <br />
+    <label for="file">Choose a .docx file:</label>
+    <InputFile OnChange="OnFileSelected" accept=".docx" required />
+    @*<input type="file" id="file" name="file" accept=".docx" @onchange="OnFileSelected" required />*@
+    <br />
+    <button type="button" @onclick="OnSubmit">Upload</button>
+</form>
 
-Welcome to your new app.
+@code {
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    private string Email;
+    private byte[] FileBytes;
+    private string ErrorMessage;
+
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.GetMultipleFiles().FirstOrDefault();
+        //var connectionString = "DefaultEndpointsProtocol=https;AccountName=serhiytoroniywebapp;AccountKey=2MhpkDv4TUFh+tKjT6BBsDd7Ne64cTL4J0VNCR1frAOiea8rw9Zhtufqh0YNjjVBbzUiAILrnq1d+ASted9kuw==;EndpointSuffix=core.windows.net";
+        if (file != null && file.ContentType == "application/vnd.openxmlformats-officedocument.wordprocessingml.document")
+        {
+            var memoryStream = new MemoryStream();
+            await file.OpenReadStream().CopyToAsync(memoryStream);
+            FileBytes = memoryStream.ToArray();
+
+            ErrorMessage = null;
+        }
+        else
+        {
+            FileBytes = null;
+            ErrorMessage = "Please choose a .docx file.";
+        }
+    }
+
+
+
+
+    private async Task OnSubmit()
+    {
+        if (FileBytes == null || string.IsNullOrEmpty(Email))
+        {
+            ErrorMessage = "Please provide an email address and choose a .docx file.";
+            return;
+        }
+
+        var connectionString = "DefaultEndpointsProtocol=https;AccountName=serhiytoroniywebapp;AccountKey=2MhpkDv4TUFh+tKjT6BBsDd7Ne64cTL4J0VNCR1frAOiea8rw9Zhtufqh0YNjjVBbzUiAILrnq1d+ASted9kuw==;EndpointSuffix=core.windows.net";
+        var containerName = "files";
+        var blobName = $"{Guid.NewGuid()}.docx";
+
+        // Upload the file to Blob Storage
+        var blobClient = new BlobClient(connectionString, containerName, blobName);
+        var metadata = new Dictionary<string, string>()
+        {
+            {"email", Email}
+        };
+        await blobClient.UploadAsync(new MemoryStream(FileBytes), new BlobUploadOptions { Metadata = metadata });
+
+
+
+
+
+        //// Send the email with a link to the uploaded file
+        //var emailMessage = new MimeMessage();
+        //emailMessage.From.Add(new MailboxAddress("FileUploader by Serhiy Toroniy", "fileuploader@gmail.com"));
+        //emailMessage.To.Add(new MailboxAddress("Recipient Name", Email));
+        //emailMessage.Subject = "Your uploaded file is ready!";
+        //emailMessage.Body = new TextPart("plain")
+        //    {
+        //        Text = $"Your uploaded file is available at https://{blobClient.AccountName}.blob.core.windows.net/{containerName}/{blobName}"
+        //    };
+
+        //using (var smtpClient = new SmtpClient())
+        //{
+        //    await smtpClient.ConnectAsync("smtp.gmail.com", 587, false);
+        //    await smtpClient.AuthenticateAsync("toroniyserhiy@gmail.com", "lzercyxhmgharuwo");
+        //    await smtpClient.SendAsync(emailMessage);
+        //    await smtpClient.DisconnectAsync(true);
+        //}
+    }
+}
